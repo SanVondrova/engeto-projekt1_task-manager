@@ -2,7 +2,7 @@
 Projekt: Task Manager
 
 Autor: Sandra Vondrová
-Popis: 
+Popis:
 Jednoduchá konzolová aplikace pro správu úkolů.
 Umožňuje:
 - přidávat úkoly,
@@ -10,23 +10,27 @@ Umožňuje:
 - odstraňovat úkoly,
 - ukončit program.
 
-Úkoly jsou ukládány do seznamu "ukoly".
+Úkoly jsou ukládány do seznamu "ukoly". Seznam vzniká ve funkci
+hlavni_menu() a ostatním funkcím se předává jako parametr.
+
+Spuštění: python engeto_projekt1.py (Python 3.9 nebo novější)
 """
 
-# Globální seznam pro ukládání úkolů
-ukoly = []
 
-
-def hlavni_menu():
+def hlavni_menu() -> None:
     """
     Zobrazuje hlavní menu aplikace.
 
     Funkce běží ve smyčce, dokud uživatel nezvolí možnost 4.
-    Podle zvolené možnosti volá příslušné funkce.
+    Podle zvolené možnosti volá příslušné funkce
+    a předává jim seznam úkolů.
     """
 
+    # Seznam pro ukládání úkolů – ostatním funkcím se předává jako parametr
+    ukoly: list[dict[str, str]] = []
+
     while True:
-        print("\nSprávce úkolů – Hlavní menu")
+        print("\nSprávce úkolů - Hlavní menu")
         print("1. Přidat nový úkol")
         print("2. Zobrazit všechny úkoly")
         print("3. Odstranit úkol")
@@ -35,13 +39,13 @@ def hlavni_menu():
         volba = input("Vyberte možnost (1-4): ")
 
         if volba == "1":
-            pridat_ukol()
+            pridat_ukol(ukoly)
 
         elif volba == "2":
-            zobrazit_ukoly()
+            zobrazit_ukoly(ukoly)
 
         elif volba == "3":
-            odstranit_ukol()
+            odstranit_ukol(ukoly)
 
         elif volba == "4":
             print("\nKonec programu.")
@@ -51,20 +55,23 @@ def hlavni_menu():
             print("Neplatná volba. Zadejte číslo 1 až 4.")
 
 
-def pridat_ukol():
+def pridat_ukol(ukoly: list[dict[str, str]]) -> None:
     """
     Přidá nový úkol do seznamu.
+
+    Parametr:
+    - ukoly: seznam úkolů, do kterého se nový úkol uloží
 
     Uživatel zadává:
     - název úkolu
     - popis úkolu
 
     Pokud některý údaj není vyplněn,
-    funkce požádá o zadání znovu.
+    funkce požádá o zadání názvu i popisu znovu.
     """
 
     while True:
-        nazev = input("Zadejte název úkolu: ").strip()
+        nazev = input("\nZadejte název úkolu: ").strip()
         popis = input("Zadejte popis úkolu: ").strip()
 
         # Kontrola prázdných vstupů
@@ -80,13 +87,16 @@ def pridat_ukol():
 
         ukoly.append(ukol)
 
-        print(f"Úkol {len(ukoly)} '{nazev}' byl přidán.")
+        print(f"Úkol '{nazev}' byl přidán.")
         break
 
 
-def zobrazit_ukoly():
+def zobrazit_ukoly(ukoly: list[dict[str, str]]) -> None:
     """
     Vypíše všechny uložené úkoly.
+
+    Parametr:
+    - ukoly: seznam úkolů, který se má vypsat
 
     Pokud seznam neobsahuje žádný úkol,
     uživatel je na tuto skutečnost upozorněn.
@@ -99,12 +109,15 @@ def zobrazit_ukoly():
     print("\nSeznam úkolů:")
 
     for index, ukol in enumerate(ukoly, start=1):
-        print(f"{index}. {ukol['nazev']} – {ukol['popis']}")
+        print(f"{index}. {ukol['nazev']} - {ukol['popis']}")
 
 
-def odstranit_ukol():
+def odstranit_ukol(ukoly: list[dict[str, str]]) -> None:
     """
     Odstraní vybraný úkol.
+
+    Parametr:
+    - ukoly: seznam úkolů, ze kterého se úkol odstraní
 
     Nejprve zobrazí všechny úkoly.
     Poté uživatel zadá číslo úkolu,
@@ -114,33 +127,37 @@ def odstranit_ukol():
     - prázdný seznam,
     - neplatné číslo úkolu,
     - nečíselný vstup.
+
+    Při neplatném vstupu se funkce zeptá znovu,
+    dokud uživatel nezadá číslo existujícího úkolu.
     """
 
     if not ukoly:
         print("\nNení žádný úkol k odstranění.")
         return
 
-    print("\nSeznam úkolů:")
+    # Výpis úkolů – využití existující funkce místo opakování kódu
+    zobrazit_ukoly(ukoly)
 
-    for index, ukol in enumerate(ukoly, start=1):
-        print(f"{index}. {ukol['nazev']} – {ukol['popis']}")
+    while True:
+        try:
+            cislo = int(
+                input("\nZadejte číslo úkolu, který chcete odstranit: ")
+            )
 
-    try:
-        cislo = int(input("\nZadejte číslo úkolu, který chcete odstranit: "))
+        except ValueError:
+            print("Musíte zadat platné číslo úkolu.")
+            continue
 
         if 1 <= cislo <= len(ukoly):
             odstraneny = ukoly.pop(cislo - 1)
 
-            print(
-                f"Úkol {cislo} '{odstraneny['nazev']}' byl odstraněn."
-            )
+            print(f"Úkol '{odstraneny['nazev']}' byl odstraněn.")
+            break
 
-        else:
-            print("Takový úkol neexistuje.")
-
-    except ValueError:
-        print("Musíte zadat platné číslo úkolu.")
+        print("Takový úkol neexistuje.")
 
 
-# Spuštění programu
-hlavni_menu()
+# Spuštění programu – pouze při přímém spuštění souboru, ne při importu
+if __name__ == "__main__":
+    hlavni_menu()
